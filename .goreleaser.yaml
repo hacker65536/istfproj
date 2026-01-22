@@ -1,0 +1,175 @@
+# GoReleaser configuration for istfproj
+# https://goreleaser.com
+
+version: 2
+
+before:
+  hooks:
+    # You may remove this if you don't use go modules.
+    - go mod tidy
+    # You may remove this if you don't need go generate
+    - go generate ./...
+
+builds:
+  - id: istfproj
+    main: ./main.go
+    binary: istfproj
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+      - darwin
+      - windows
+    goarch:
+      - amd64
+      - arm64
+      - arm
+    goarm:
+      - "7"
+    ignore:
+      - goos: windows
+        goarch: arm
+      - goos: windows
+        goarch: arm64
+    ldflags:
+      - -s -w
+      - -X main.version={{.Version}}
+      - -X main.commit={{.Commit}}
+      - -X main.date={{.Date}}
+      - -X main.builtBy=goreleaser
+
+archives:
+  - id: istfproj
+    format: tar.gz
+    name_template: >-
+      {{ .ProjectName }}_
+      {{- .Version }}_
+      {{- title .Os }}_
+      {{- if eq .Arch "amd64" }}x86_64
+      {{- else if eq .Arch "386" }}i386
+      {{- else }}{{ .Arch }}{{ end }}
+      {{- if .Arm }}v{{ .Arm }}{{ end }}
+    format_overrides:
+      - goos: windows
+        format: zip
+    files:
+      - README.md
+      - LICENSE*
+
+checksum:
+  name_template: 'checksums.txt'
+  algorithm: sha256
+
+snapshot:
+  version_template: "{{ incpatch .Version }}-next"
+
+changelog:
+  sort: asc
+  use: github
+  filters:
+    exclude:
+      - '^docs:'
+      - '^test:'
+      - '^chore:'
+      - '^ci:'
+      - Merge pull request
+      - Merge branch
+  groups:
+    - title: Features
+      regexp: '^.*?feat(\([[:word:]]+\))??!?:.+$'
+      order: 0
+    - title: 'Bug fixes'
+      regexp: '^.*?fix(\([[:word:]]+\))??!?:.+$'
+      order: 1
+    - title: 'Performance improvements'
+      regexp: '^.*?perf(\([[:word:]]+\))??!?:.+$'
+      order: 2
+    - title: Others
+      order: 999
+
+release:
+  github:
+  draft: false
+  prerelease: auto
+  mode: append
+  header: |
+    ## istfproj {{ .Tag }} ({{ .Date }})
+    
+    Terraform Project Checker - HCLファイルを解析してTerraformプロジェクトを判定するCLIツール
+  footer: |
+    ## インストール方法
+    
+    ### Homebrew (macOS/Linux)
+    ```bash
+    brew install {{ .Env.GITHUB_OWNER }}/tap/istfproj
+    ```
+    
+    ### 手動インストール
+    1. お使いのOSとアーキテクチャに合ったバイナリをダウンロード
+    2. 解凍してPATHの通ったディレクトリに配置
+    
+    ### Go install
+    ```bash
+    go install github.com/{{ .Env.GITHUB_OWNER }}/{{ .Env.GITHUB_REPO }}@latest
+    ```
+    
+    **Full Changelog**: https://github.com/{{ .Env.GITHUB_OWNER }}/{{ .Env.GITHUB_REPO }}/compare/{{ .PreviousTag }}...{{ .Tag }}
+
+# Homebrew tap configuration
+brews:
+  - repository:
+      owner: "{{ .Env.GITHUB_OWNER }}"
+      name: homebrew-tap
+      token: "{{ .Env.GITHUB_TOKEN }}"
+    directory: Formula
+    homepage: "https://github.com/{{ .Env.GITHUB_OWNER }}/{{ .Env.GITHUB_REPO }}"
+    description: "Terraform Project Checker - HCLファイルを解析してTerraformプロジェクトを判定するCLIツール"
+    license: "MIT"
+    test: |
+      system "#{bin}/istfproj", "--help"
+    install: |
+      bin.install "istfproj"
+
+# Docker images (optional)
+dockers:
+  - image_templates:
+      - "{{ .Env.DOCKER_REGISTRY }}/{{ .Env.GITHUB_OWNER }}/istfproj:{{ .Version }}-amd64"
+      - "{{ .Env.DOCKER_REGISTRY }}/{{ .Env.GITHUB_OWNER }}/istfproj:latest-amd64"
+    use: buildx
+    dockerfile: Dockerfile
+    build_flag_templates:
+      - "--platform=linux/amd64"
+      - "--label=org.opencontainers.image.created={{.Date}}"
+      - "--label=org.opencontainers.image.title={{.ProjectName}}"
+      - "--label=org.opencontainers.image.revision={{.FullCommit}}"
+      - "--label=org.opencontainers.image.version={{.Version}}"
+    skip_push: auto
+  - image_templates:
+      - "{{ .Env.DOCKER_REGISTRY }}/{{ .Env.GITHUB_OWNER }}/istfproj:{{ .Version }}-arm64"
+      - "{{ .Env.DOCKER_REGISTRY }}/{{ .Env.GITHUB_OWNER }}/istfproj:latest-arm64"
+    use: buildx
+    goarch: arm64
+    dockerfile: Dockerfile
+    build_flag_templates:
+      - "--platform=linux/arm64"
+      - "--label=org.opencontainers.image.created={{.Date}}"
+      - "--label=org.opencontainers.image.title={{.ProjectName}}"
+      - "--label=org.opencontainers.image.revision={{.FullCommit}}"
+      - "--label=org.opencontainers.image.version={{.Version}}"
+    skip_push: auto
+
+docker_manifests:
+  - name_template: "{{ .Env.DOCKER_REGISTRY }}/{{ .Env.GITHUB_OWNER }}/istfproj:{{ .Version }}"
+    image_templates:
+      - "{{ .Env.DOCKER_REGISTRY }}/{{ .Env.GITHUB_OWNER }}/istfproj:{{ .Version }}-amd64"
+      - "{{ .Env.DOCKER_REGISTRY }}/{{ .Env.GITHUB_OWNER }}/istfproj:{{ .Version }}-arm64"
+    skip_push: auto
+  - name_template: "{{ .Env.DOCKER_REGISTRY }}/{{ .Env.GITHUB_OWNER }}/istfproj:latest"
+    image_templates:
+      - "{{ .Env.DOCKER_REGISTRY }}/{{ .Env.GITHUB_OWNER }}/istfproj:latest-amd64"
+      - "{{ .Env.DOCKER_REGISTRY }}/{{ .Env.GITHUB_OWNER }}/istfproj:latest-arm64"
+    skip_push: auto
+
+# Announce (optional)
+announce:
+  skip: "{{ .Env.SKIP_ANNOUNCE }}"
