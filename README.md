@@ -46,7 +46,8 @@ go build -o istfproj
 ## 使い方
 
 ```bash
-istfproj <directory> [--strict] [--json]
+istfproj <directory> [options]
+istfproj --help
 ```
 
 ### パラメータ
@@ -55,12 +56,16 @@ istfproj <directory> [--strict] [--json]
 
 ### オプション
 
+- `-h, --help`: ヘルプメッセージを表示
 - `--strict`: providerブロックの有無も厳格にチェック（providerがない場合は`false`）
 - `--json`: providerブロックの詳細情報をJSON形式で出力
 
 ### 使用例
 
 ```bash
+# ヘルプを表示
+istfproj --help
+
 # デフォルト: *.tfファイルの有無のみチェック
 istfproj .
 # 終了コード: 0（成功）または 1（失敗）
