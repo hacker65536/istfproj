@@ -115,20 +115,20 @@ release:
     
     **Full Changelog**: https://github.com/{{ .Env.GITHUB_OWNER }}/{{ .Env.GITHUB_REPO }}/compare/{{ .PreviousTag }}...{{ .Tag }}
 
-# Homebrew tap configuration
-brews:
-  - repository:
-      owner: "{{ .Env.GITHUB_OWNER }}"
-      name: homebrew-tap
-      token: "{{ .Env.GITHUB_TOKEN }}"
-    directory: Formula
-    homepage: "https://github.com/{{ .Env.GITHUB_OWNER }}/{{ .Env.GITHUB_REPO }}"
-    description: "Terraform Project Checker - HCLファイルを解析してTerraformプロジェクトを判定するCLIツール"
-    license: "MIT"
-    test: |
-      system "#{bin}/istfproj", "--help"
-    install: |
-      bin.install "istfproj"
+# Homebrew tap configuration (disabled - create homebrew-tap repo first)
+# brews:
+#   - repository:
+#       owner: "{{ .Env.GITHUB_OWNER }}"
+#       name: homebrew-tap
+#       token: "{{ .Env.GITHUB_TOKEN }}"
+#     directory: Formula
+#     homepage: "https://github.com/{{ .Env.GITHUB_OWNER }}/{{ .Env.GITHUB_REPO }}"
+#     description: "Terraform Project Checker - HCLファイルを解析してTerraformプロジェクトを判定するCLIツール"
+#     license: "MIT"
+#     test: |
+#       system "#{bin}/istfproj", "--help"
+#     install: |
+#       bin.install "istfproj"
 
 # Docker images (optional) - Disabled for now
 # dockers:
