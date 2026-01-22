@@ -170,6 +170,6 @@ release:
 #       - "{{ .Env.DOCKER_REGISTRY }}/{{ .Env.GITHUB_OWNER }}/istfproj:latest-arm64"
 #     skip_push: auto
 
-# Announce (optional)
-announce:
-  skip: "{{ .Env.SKIP_ANNOUNCE }}"
+# Announce (optional) - Disabled
+# announce:
+#   skip: true
