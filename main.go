@@ -322,19 +322,53 @@ func (pc *ProviderChecker) getAllProviders(dir string) ([]*ProviderInfo, error) 
 	return allProviders, nil
 }
 
+func printHelp() {
+	fmt.Println("istfproj - Terraform Project Checker")
+	fmt.Println("\nUsage:")
+	fmt.Println("  istfproj <directory> [options]")
+	fmt.Println("  istfproj --help")
+	fmt.Println("\nDescription:")
+	fmt.Println("  指定されたディレクトリがTerraformプロジェクトかどうかを判定します。")
+	fmt.Println("  終了コード 0 で成功、1 で失敗を返します。")
+	fmt.Println("\nOptions:")
+	fmt.Println("  -h, --help    このヘルプメッセージを表示")
+	fmt.Println("  --strict      providerブロックの有無も厳格にチェック")
+	fmt.Println("                （providerがない場合は終了コード1を返す）")
+	fmt.Println("  --json        providerブロックの詳細情報をJSON形式で出力")
+	fmt.Println("\nExamples:")
+	fmt.Println("  # カレントディレクトリをチェック（*.tfファイルの有無のみ）")
+	fmt.Println("  istfproj .")
+	fmt.Println()
+	fmt.Println("  # providerブロックも必須としてチェック")
+	fmt.Println("  istfproj . --strict")
+	fmt.Println()
+	fmt.Println("  # providerの詳細情報をJSON形式で出力")
+	fmt.Println("  istfproj . --json")
+	fmt.Println()
+	fmt.Println("  # 厳格チェック + JSON出力")
+	fmt.Println("  istfproj . --strict --json")
+	fmt.Println()
+	fmt.Println("Exit Codes:")
+	fmt.Println("  0  成功（Terraformプロジェクトである）")
+	fmt.Println("  1  失敗（Terraformプロジェクトではない、またはエラー発生）")
+	fmt.Println()
+	fmt.Println("Notes:")
+	fmt.Println("  - --json オプション使用時は、*.tfファイルが存在すれば常に終了コード0を返します")
+	fmt.Println("  - --strict オプションは --json と併用できますが、終了コードには影響しません")
+}
+
 func main() {
+	// ヘルプオプションのチェック
+	if len(os.Args) > 1 {
+		arg := os.Args[1]
+		if arg == "-h" || arg == "--help" || arg == "help" {
+			printHelp()
+			os.Exit(0)
+		}
+	}
+
 	if len(os.Args) < 2 {
-		fmt.Println("Usage: istfproj <directory> [--strict] [--json]")
-		fmt.Println("\nDescription:")
-		fmt.Println("  指定されたディレクトリがTerraformプロジェクトかどうかを判定します")
-		fmt.Println("\nOptions:")
-		fmt.Println("  --strict  providerブロックの有無も厳格にチェック（providerがない場合はfalse）")
-		fmt.Println("  --json    providerブロックの詳細情報をJSON形式で出力")
-		fmt.Println("\nExamples:")
-		fmt.Println("  istfproj .              # カレントディレクトリをチェック（*.tfの有無のみ）")
-		fmt.Println("  istfproj . --strict     # providerブロックも必須としてチェック")
-		fmt.Println("  istfproj . --json       # providerの詳細情報をJSON出力")
-		fmt.Println("  istfproj . --strict --json  # 厳格チェック + JSON出力")
+		printHelp()
 		os.Exit(1)
 	}
 
@@ -345,10 +379,17 @@ func main() {
 	// オプションの解析
 	for i := 2; i < len(os.Args); i++ {
 		switch os.Args[i] {
+		case "-h", "--help":
+			printHelp()
+			os.Exit(0)
 		case "--strict":
 			strictMode = true
 		case "--json":
 			jsonOutput = true
+		default:
+			fmt.Fprintf(os.Stderr, "Error: Unknown option '%s'\n", os.Args[i])
+			fmt.Fprintf(os.Stderr, "Run 'istfproj --help' for usage information.\n")
+			os.Exit(1)
 		}
 	}
 
