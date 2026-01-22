@@ -8,7 +8,7 @@ Terraformプロジェクトの状態を判定するGoツールです。`github.c
 
 - 指定されたディレクトリがTerraformプロジェクトかどうかを判定
 - デフォルト: *.tfファイルの有無で判定（終了コード 0 or 1 で結果を返す）
-- `--strict`オプション: providerブロックの有無も厳格にチェック
+- `--require-provider`オプション: providerブロックを必須としてチェック
 - `--json`オプション: providerブロックの詳細情報をJSON形式で出力
 
 ## Terraformプロジェクトの判定基準
@@ -17,7 +17,7 @@ Terraformプロジェクトの状態を判定するGoツールです。`github.c
 - *.tfファイルが存在すれば終了コード `0`（成功）
 - Terraformは自動でproviderを検知してインストールするため、providerブロックがなくてもTerraformプロジェクトとして扱う
 
-### Strictモード（`--strict`）
+### Require-Providerモード（`--require-provider`）
 - *.tfファイルが存在し、かつproviderブロックが記述されている場合のみ終了コード `0`（成功）
 - moduleかどうかの判断の参考になる（moduleは通常providerブロックを持たない）
 
@@ -57,7 +57,7 @@ istfproj --help
 ### オプション
 
 - `-h, --help`: ヘルプメッセージを表示
-- `--strict`: providerブロックの有無も厳格にチェック（providerがない場合は`false`）
+- `--require-provider`: providerブロックを必須としてチェック（providerがない場合は終了コード1）
 - `--json`: providerブロックの詳細情報をJSON形式で出力
 
 ### 使用例
@@ -70,16 +70,16 @@ istfproj --help
 istfproj .
 # 終了コード: 0（成功）または 1（失敗）
 
-# Strictモード: providerブロックも必須
-istfproj . --strict
+# Require-Providerモード: providerブロックも必須
+istfproj . --require-provider
 # 終了コード: 0（成功）または 1（失敗）
 
 # JSON出力: providerの詳細情報を取得
 istfproj . --json
 # JSON形式の詳細情報を標準出力に出力
 
-# Strictモード + JSON出力
-istfproj . --strict --json
+# Require-Providerモード + JSON出力
+istfproj . --require-provider --json
 ```
 
 ## 出力例
@@ -95,16 +95,16 @@ $ echo $?
 *.tfファイルが存在すれば終了コード `0`、存在しなければ `1` を返します。
 標準出力には何も出力されません。
 
-### Strictモード
+### Require-Providerモード
 
 ```bash
 # providerブロックがある場合
-$ istfproj . --strict
+$ istfproj . --require-provider
 $ echo $?
 0
 
 # *.tfファイルはあるがproviderブロックがない場合
-$ istfproj ./module --strict
+$ istfproj ./module --require-provider
 $ echo $?
 1
 ```
@@ -188,8 +188,8 @@ fi
 ```bash
 #!/bin/bash
 
-# Strictモードでproviderブロックの有無をチェック
-if istfproj . --strict; then
+# Require-Providerモードでproviderブロックの有無をチェック
+if istfproj . --require-provider; then
     echo "Root Terraformプロジェクト（providerあり）"
     terraform init
     terraform apply
@@ -233,8 +233,8 @@ for dir in */; do
     if istfproj "$dir"; then
         echo "✓ $dir: Terraformプロジェクト"
         
-        # Strictモードでproviderの有無も確認
-        if istfproj "$dir" --strict; then
+        # Require-Providerモードでproviderの有無も確認
+        if istfproj "$dir" --require-provider; then
             echo "  → providerブロックあり（root project）"
         else
             echo "  → providerブロックなし（module）"

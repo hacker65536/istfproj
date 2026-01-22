@@ -331,22 +331,22 @@ func printHelp() {
 	fmt.Println("  指定されたディレクトリがTerraformプロジェクトかどうかを判定します。")
 	fmt.Println("  終了コード 0 で成功、1 で失敗を返します。")
 	fmt.Println("\nOptions:")
-	fmt.Println("  -h, --help    このヘルプメッセージを表示")
-	fmt.Println("  --strict      providerブロックの有無も厳格にチェック")
-	fmt.Println("                （providerがない場合は終了コード1を返す）")
-	fmt.Println("  --json        providerブロックの詳細情報をJSON形式で出力")
+	fmt.Println("  -h, --help            このヘルプメッセージを表示")
+	fmt.Println("  --require-provider    providerブロックを必須としてチェック")
+	fmt.Println("                        （providerがない場合は終了コード1を返す）")
+	fmt.Println("  --json                providerブロックの詳細情報をJSON形式で出力")
 	fmt.Println("\nExamples:")
 	fmt.Println("  # カレントディレクトリをチェック（*.tfファイルの有無のみ）")
 	fmt.Println("  istfproj .")
 	fmt.Println()
-	fmt.Println("  # providerブロックも必須としてチェック")
-	fmt.Println("  istfproj . --strict")
+	fmt.Println("  # providerブロックを必須としてチェック")
+	fmt.Println("  istfproj . --require-provider")
 	fmt.Println()
 	fmt.Println("  # providerの詳細情報をJSON形式で出力")
 	fmt.Println("  istfproj . --json")
 	fmt.Println()
 	fmt.Println("  # 厳格チェック + JSON出力")
-	fmt.Println("  istfproj . --strict --json")
+	fmt.Println("  istfproj . --require-provider --json")
 	fmt.Println()
 	fmt.Println("Exit Codes:")
 	fmt.Println("  0  成功（Terraformプロジェクトである）")
@@ -354,7 +354,7 @@ func printHelp() {
 	fmt.Println()
 	fmt.Println("Notes:")
 	fmt.Println("  - --json オプション使用時は、*.tfファイルが存在すれば常に終了コード0を返します")
-	fmt.Println("  - --strict オプションは --json と併用できますが、終了コードには影響しません")
+	fmt.Println("  - --require-provider オプションは --json と併用できますが、終了コードには影響しません")
 }
 
 func main() {
@@ -373,7 +373,7 @@ func main() {
 	}
 
 	directory := os.Args[1]
-	strictMode := false
+	requireProvider := false
 	jsonOutput := false
 
 	// オプションの解析
@@ -382,8 +382,8 @@ func main() {
 		case "-h", "--help":
 			printHelp()
 			os.Exit(0)
-		case "--strict":
-			strictMode = true
+		case "--require-provider":
+			requireProvider = true
 		case "--json":
 			jsonOutput = true
 		default:
@@ -430,8 +430,8 @@ func main() {
 		if !jsonOutput {
 			fmt.Fprintf(os.Stderr, "Warning: Error parsing files: %v\n", err)
 		}
-		// パースエラーがあっても*.tfファイルは存在するので、strictモードでなければ成功
-		if strictMode {
+		// パースエラーがあっても*.tfファイルは存在するので、requireProviderモードでなければ成功
+		if requireProvider {
 			os.Exit(1)
 		}
 		os.Exit(0)
@@ -459,11 +459,11 @@ func main() {
 	}
 
 	// デフォルトモード: *.tfファイルがあれば成功（終了コード0）
-	if !strictMode {
+	if !requireProvider {
 		os.Exit(0)
 	}
 
-	// strictモード: providerブロックも必要
+	// requireProviderモード: providerブロックも必要
 	if len(providers) > 0 {
 		os.Exit(0)
 	} else {
