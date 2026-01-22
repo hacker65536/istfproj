@@ -130,45 +130,45 @@ brews:
     install: |
       bin.install "istfproj"
 
-# Docker images (optional)
-dockers:
-  - image_templates:
-      - "{{ .Env.DOCKER_REGISTRY }}/{{ .Env.GITHUB_OWNER }}/istfproj:{{ .Version }}-amd64"
-      - "{{ .Env.DOCKER_REGISTRY }}/{{ .Env.GITHUB_OWNER }}/istfproj:latest-amd64"
-    use: buildx
-    dockerfile: Dockerfile
-    build_flag_templates:
-      - "--platform=linux/amd64"
-      - "--label=org.opencontainers.image.created={{.Date}}"
-      - "--label=org.opencontainers.image.title={{.ProjectName}}"
-      - "--label=org.opencontainers.image.revision={{.FullCommit}}"
-      - "--label=org.opencontainers.image.version={{.Version}}"
-    skip_push: auto
-  - image_templates:
-      - "{{ .Env.DOCKER_REGISTRY }}/{{ .Env.GITHUB_OWNER }}/istfproj:{{ .Version }}-arm64"
-      - "{{ .Env.DOCKER_REGISTRY }}/{{ .Env.GITHUB_OWNER }}/istfproj:latest-arm64"
-    use: buildx
-    goarch: arm64
-    dockerfile: Dockerfile
-    build_flag_templates:
-      - "--platform=linux/arm64"
-      - "--label=org.opencontainers.image.created={{.Date}}"
-      - "--label=org.opencontainers.image.title={{.ProjectName}}"
-      - "--label=org.opencontainers.image.revision={{.FullCommit}}"
-      - "--label=org.opencontainers.image.version={{.Version}}"
-    skip_push: auto
+# Docker images (optional) - Disabled for now
+# dockers:
+#   - image_templates:
+#       - "{{ .Env.DOCKER_REGISTRY }}/{{ .Env.GITHUB_OWNER }}/istfproj:{{ .Version }}-amd64"
+#       - "{{ .Env.DOCKER_REGISTRY }}/{{ .Env.GITHUB_OWNER }}/istfproj:latest-amd64"
+#     use: buildx
+#     dockerfile: Dockerfile
+#     build_flag_templates:
+#       - "--platform=linux/amd64"
+#       - "--label=org.opencontainers.image.created={{.Date}}"
+#       - "--label=org.opencontainers.image.title={{.ProjectName}}"
+#       - "--label=org.opencontainers.image.revision={{.FullCommit}}"
+#       - "--label=org.opencontainers.image.version={{.Version}}"
+#     skip_push: auto
+#   - image_templates:
+#       - "{{ .Env.DOCKER_REGISTRY }}/{{ .Env.GITHUB_OWNER }}/istfproj:{{ .Version }}-arm64"
+#       - "{{ .Env.DOCKER_REGISTRY }}/{{ .Env.GITHUB_OWNER }}/istfproj:latest-arm64"
+#     use: buildx
+#     goarch: arm64
+#     dockerfile: Dockerfile
+#     build_flag_templates:
+#       - "--platform=linux/arm64"
+#       - "--label=org.opencontainers.image.created={{.Date}}"
+#       - "--label=org.opencontainers.image.title={{.ProjectName}}"
+#       - "--label=org.opencontainers.image.revision={{.FullCommit}}"
+#       - "--label=org.opencontainers.image.version={{.Version}}"
+#     skip_push: auto
 
-docker_manifests:
-  - name_template: "{{ .Env.DOCKER_REGISTRY }}/{{ .Env.GITHUB_OWNER }}/istfproj:{{ .Version }}"
-    image_templates:
-      - "{{ .Env.DOCKER_REGISTRY }}/{{ .Env.GITHUB_OWNER }}/istfproj:{{ .Version }}-amd64"
-      - "{{ .Env.DOCKER_REGISTRY }}/{{ .Env.GITHUB_OWNER }}/istfproj:{{ .Version }}-arm64"
-    skip_push: auto
-  - name_template: "{{ .Env.DOCKER_REGISTRY }}/{{ .Env.GITHUB_OWNER }}/istfproj:latest"
-    image_templates:
-      - "{{ .Env.DOCKER_REGISTRY }}/{{ .Env.GITHUB_OWNER }}/istfproj:latest-amd64"
-      - "{{ .Env.DOCKER_REGISTRY }}/{{ .Env.GITHUB_OWNER }}/istfproj:latest-arm64"
-    skip_push: auto
+# docker_manifests:
+#   - name_template: "{{ .Env.DOCKER_REGISTRY }}/{{ .Env.GITHUB_OWNER }}/istfproj:{{ .Version }}"
+#     image_templates:
+#       - "{{ .Env.DOCKER_REGISTRY }}/{{ .Env.GITHUB_OWNER }}/istfproj:{{ .Version }}-amd64"
+#       - "{{ .Env.DOCKER_REGISTRY }}/{{ .Env.GITHUB_OWNER }}/istfproj:{{ .Version }}-arm64"
+#     skip_push: auto
+#   - name_template: "{{ .Env.DOCKER_REGISTRY }}/{{ .Env.GITHUB_OWNER }}/istfproj:latest"
+#     image_templates:
+#       - "{{ .Env.DOCKER_REGISTRY }}/{{ .Env.GITHUB_OWNER }}/istfproj:latest-amd64"
+#       - "{{ .Env.DOCKER_REGISTRY }}/{{ .Env.GITHUB_OWNER }}/istfproj:latest-arm64"
+#     skip_push: auto
 
 # Announce (optional)
 announce:
