@@ -27,12 +27,6 @@ Terraformプロジェクトの状態を判定するGoツールです。`github.c
 
 [Releases](https://github.com/hacker65536/istfproj/releases)ページから、お使いのOSとアーキテクチャに合ったバイナリをダウンロードしてください。
 
-### Homebrew (macOS/Linux)
-
-```bash
-brew install hacker65536/tap/istfproj
-```
-
 ### Go install
 
 ```bash
